@@ -40,7 +40,7 @@ def connect():
     with open(f"{whphone}.env", "w") as file:
         file.write(f"WHPHONE={whphone}\nNOTION_SECRET='{secret}'\nNOTION_DB='{dbid}'")
         file.close()
-    return file.read()
+    return "🤖 OK", 200
 
 @app.route('/webhooks', methods=['POST','GET'])
 def webhook():
