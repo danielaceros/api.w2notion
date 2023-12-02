@@ -32,6 +32,16 @@ timestamps = [0]
 def test():
     return "🤖 Service running..."
 
+@app.route('/v1/connect')
+def connect():
+    whphone = request.args.get("whphone")
+    secret = request.args.get("secret")
+    dbid = request.args.get("dbid")
+    with open(f"{whphone}.env", "w") as file:
+        file.write(f"WHPHONE={whphone}\nNOTION_SECRET='{secret}'\nNOTION_DB='{dbid}'")
+        file.close()
+    return file.read()
+
 @app.route('/webhooks', methods=['POST','GET'])
 def webhook():
    if request.args.get("hub.mode") == "subscribe" and request.args.get("hub.challenge"):
