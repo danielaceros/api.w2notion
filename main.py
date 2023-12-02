@@ -38,7 +38,7 @@ def connect():
     secret = request.args.get("secret")
     dbid = request.args.get("dbid")
     with open(f"{whphone}.env", "w") as file:
-        file.write(f'WHPHONE="{whphone}"\nNOTION_SECRET="{secret}"\nNOTION_DB="{dbid}"')
+        file.write(f'WHPHONE="{whphone}"\nNOTION_TOKEN="{secret}"\nNOTION_DB="{dbid}"')
         file.close()
     return "🤖 OK", 200
 
