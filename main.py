@@ -20,6 +20,8 @@ import re
 from urllib.parse import urlparse
 import datetime
 from time import sleep
+import requests as r
+import base64 
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -27,6 +29,7 @@ app = Flask(__name__)
 CORS(app)
 model = whisper.load_model("base")
 timestamps = [0]
+load_dotenv()
 
 @app.route('/test')
 def test():
@@ -41,6 +44,28 @@ def connect():
         file.write(f'WHPHONE="{whphone}"\nNOTION_TOKEN="{secret}"\nNOTION_DB="{dbid}"')
         file.close()
     return "🤖 OK", 200
+
+@app.route('/v1/oauth')
+def oauth():
+    code = request.args.get("code")
+    state = request.args.get("state")
+    clien = os.environ.get('OAUTH_CLIENT_ID')
+    bs64 = base64.encode(str(os.environ.get('OAUTH_CLIENT_ID')+":"+os.environ.get('OAUTH_CLIENT_SECRET')).encode("utf-8"))
+    res = r.post("https://api.notion.com/v1/oauth/token", headers={
+        "Authorization":"Basic "+bs64,
+        "Content-Type":"application/json",
+    }, data={
+        "grant_type": "authorization_code",
+        "code": code,
+          "redirect_uri": "https://api.w2notion.es/v1/callback"
+    })
+
+    
+@app.route('/v1/callback')
+def callback():
+    access_token = request.args.get("access_token")
+    bot_id = request.args.get("bot_id")
+    print(access_token, bot_id)
 
 @app.route('/webhooks', methods=['POST','GET'])
 def webhook():
