@@ -65,6 +65,13 @@ def oauth():
         "redirect_uri": "https://api.w2notion.es/v1/oauth"
     })
     js = json.loads(res.text)
+    print(document_data={
+            "clientId":js['bot_id'],
+            "clientSecret":js['access_token'],
+            "workspaceId":js['workspace_id'],
+            "userId":js['owner']['user']['id'],
+            "phone":ph
+        })
     try:
         db.collection('notion').add(document_data={
             "clientId":js['bot_id'],
