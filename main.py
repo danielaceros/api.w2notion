@@ -72,9 +72,6 @@ def callback():
     workspace_id = request.args.get("workspace_id")
     user_id = request.args.get("user_id")
     try:
-        db.collection('notion').add(document_data={
-            "clientId":user_id
-        },document_id=)
         return jsonify({"message": "Datos añadidos correctamente"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
