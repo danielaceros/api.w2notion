@@ -31,7 +31,6 @@ CORS(app)
 model = whisper.load_model("base")
 timestamps = [0]
 load_dotenv()
-db = firestore.Client()
 
 @app.route('/test')
 def test():
