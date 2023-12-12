@@ -58,11 +58,10 @@ def oauth():
     }, json={
         "grant_type": "authorization_code",
         "code": code,
-        "redirect_uri": "https://api.w2notion.es/v1/callback"
+        "redirect_uri": "https://api.w2notion.es/v1/oauth"
     })
     print(res.text) 
 
-    
 @app.route('/v1/callback')
 def callback():
     access_token = request.args.get("access_token")
