@@ -55,10 +55,10 @@ def oauth():
     res = r.post("https://api.notion.com/v1/oauth/token", headers={
         "Authorization":"Basic '"+bs64+"'",
         "Content-Type":"application/json",
-    }, data={
+    }, json={
         "grant_type": "authorization_code",
         "code": code,
-          "redirect_uri": "https://api.w2notion.es/v1/callback"
+        "redirect_uri": "https://api.w2notion.es/v1/callback"
     })
     print(res.text) 
 
