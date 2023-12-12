@@ -53,7 +53,7 @@ def oauth():
     bs64s = str(os.environ.get('OAUTH_CLIENT_ID')+":"+os.environ.get('OAUTH_CLIENT_SECRET'))
     bs64 = base64.b64encode(bytes(bs64s, "utf-8"))
     res = r.post("https://api.notion.com/v1/oauth/token", headers={
-        "Authorization":"Basic "+bs64,
+        "Authorization":"Basic '"+bs64.decode("utf-8")+"'"
         "Content-Type":"application/json",
     }, data={
         "grant_type": "authorization_code",
