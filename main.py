@@ -32,6 +32,7 @@ model = whisper.load_model("base")
 timestamps = [0]
 load_dotenv()
 db = firestore.Client()
+print(db)
 
 @app.route('/test')
 def test():
