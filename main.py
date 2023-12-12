@@ -23,6 +23,7 @@ from time import sleep
 import requests as r
 import base64 
 from google.cloud import firestore
+db = firestore.Client()
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -48,6 +49,8 @@ def connect():
 
 @app.route('/v1/oauth')
 def oauth():
+    uid = request.cookies.get('firebaseUUID')
+    ph = request.cookies.get('phone')
     code = request.args.get("code")
     state = request.args.get("state")
     clien = os.environ.get('OAUTH_CLIENT_ID')
@@ -62,19 +65,18 @@ def oauth():
         "redirect_uri": "https://api.w2notion.es/v1/oauth"
     })
     js = json.loads(res.text)
-    return jsonify(js)
-
-@app.route('/v1/callback')
-def callback():
-    access_token = request.args.get("access_token")
-    bot_id = request.args.get("bot_id")
-    workspace_id = request.args.get("workspace_id")
-    user_id = request.args.get("user_id")
     try:
+        db.collection('notion').add(document_data={
+            "clientId":js['bot_id'],
+            "clientSecret":js['access_token'],
+            "workspaceId":js['workspace_id'],
+            "userId":js['owner']['user']['id'],
+            "phone":ph
+        }, document_id=uid)
         return jsonify({"message": "Datos añadidos correctamente"}), 200
     except Exception as e:
         return jsonify({"error": str(e)}), 500
-
+    
 @app.route('/webhooks', methods=['POST','GET'])
 def webhook():
    if request.args.get("hub.mode") == "subscribe" and request.args.get("hub.challenge"):
