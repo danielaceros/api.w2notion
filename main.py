@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, redirect, request, jsonify
 from flask_cors import CORS
 import os
 from dotenv import load_dotenv
@@ -22,6 +22,7 @@ import datetime
 from time import sleep
 import requests as r
 import base64 
+from google.cloud import firestore
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -30,6 +31,7 @@ CORS(app)
 model = whisper.load_model("base")
 timestamps = [0]
 load_dotenv()
+db = firestore.Client()
 
 @app.route('/test')
 def test():
@@ -60,13 +62,22 @@ def oauth():
         "code": code,
         "redirect_uri": "https://api.w2notion.es/v1/oauth"
     })
-    return res.text
+    js = json.loads(res.text)
+    return jsonify(js)
 
 @app.route('/v1/callback')
 def callback():
     access_token = request.args.get("access_token")
     bot_id = request.args.get("bot_id")
-    return access_token
+    workspace_id = request.args.get("workspace_id")
+    user_id = request.args.get("user_id")
+    try:
+        db.collection('notion').add(document_data={
+            "clientId":user_id
+        },document_id=)
+        return jsonify({"message": "Datos añadidos correctamente"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/webhooks', methods=['POST','GET'])
 def webhook():
