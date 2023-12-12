@@ -60,7 +60,7 @@ def oauth():
         "code": code,
           "redirect_uri": "https://api.w2notion.es/v1/callback"
     })
-    print(res.json()) 
+    print(res.text) 
 
     
 @app.route('/v1/callback')
