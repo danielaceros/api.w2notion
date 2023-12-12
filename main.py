@@ -23,7 +23,6 @@ from time import sleep
 import requests as r
 import base64 
 from google.cloud import firestore
-db = firestore.Client()
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -32,6 +31,7 @@ CORS(app)
 model = whisper.load_model("base")
 timestamps = [0]
 load_dotenv()
+db = firestore.Client()
 
 @app.route('/test')
 def test():
