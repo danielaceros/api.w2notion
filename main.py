@@ -60,13 +60,14 @@ def oauth():
         "code": code,
           "redirect_uri": "https://api.w2notion.es/v1/callback"
     })
+    return "🤖 OK", 200
 
     
 @app.route('/v1/callback')
 def callback():
     access_token = request.args.get("access_token")
     bot_id = request.args.get("bot_id")
-    print(access_token, bot_id)
+    return access_token
 
 @app.route('/webhooks', methods=['POST','GET'])
 def webhook():
