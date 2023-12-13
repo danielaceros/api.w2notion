@@ -32,6 +32,7 @@ model = whisper.load_model("base")
 timestamps = [0]
 load_dotenv()
 db = firestore.Client().from_service_account_json("wh2notion-53bef507da5d.json")
+print(db.collections())
 
 @app.route('/test')
 def test():
