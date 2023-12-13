@@ -29,10 +29,11 @@ logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
 CORS(app)
-socketio = SocketIO(app, cors_allowed_origins=["http://localhost:8100", ""], logger=True, engineio_logger=True)
 model = whisper.load_model("base")
 timestamps = [0]
 load_dotenv()
+db = firestore.Client().from_service_account_json("wh2notion-62f600ea376d.json")
+print(db.collections())
 
 @app.route('/test')
 def test():
@@ -47,14 +48,6 @@ def connect():
         file.write(f'WHPHONE="{whphone}"\nNOTION_TOKEN="{secret}"\nNOTION_DB="{dbid}"')
         file.close()
     return "🤖 OK", 200
-
-@app.route('/v1/testoauth')
-def testoauth():
-    document_data = {
-        "hola":"adios"
-    }
-    socketio.emit('data', document_data)
-    return 200
 
 @app.route('/v1/oauth')
 def oauth():
@@ -75,20 +68,19 @@ def oauth():
     })
     js = json.loads(res.text)
     try:
-        document_data={
+        db.collection('notion').add(document_data={
             "firebaseUUID":uid,
             "clientId":js['bot_id'],
             "clientSecret":js['access_token'],
             "workspaceId":js['workspace_id'],
             "userId":js['owner']['user']['id'],
             "phone":ph
-        }
-        return redirect("https://app.w2notion.es")
+        }, document_id=uid)
+        return jsonify({"message": "Datos añadidos correctamente"}), 200
     except Exception as e:
         print(e)
         return jsonify({"error": str(e)}), 500
         
-    
 @app.route('/webhooks', methods=['POST','GET'])
 def webhook():
    if request.args.get("hub.mode") == "subscribe" and request.args.get("hub.challenge"):
