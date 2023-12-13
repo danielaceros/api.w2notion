@@ -34,7 +34,6 @@ model = whisper.load_model("base")
 timestamps = [0]
 load_dotenv()
 db = firestore.Client().from_service_account_json("wh2notion-62f600ea376d.json")
-print(db.collections())
 
 @app.route('/test')
 def test():
@@ -78,7 +77,7 @@ def oauth():
             "phone":ph
         }
         socketio.emit('message_from_server', document_data)
-        return jsonify({"message": "Datos añadidos correctamente"}), 200
+        return redirect("https://app.w2notion.es")
     except Exception as e:
         print(e)
         return jsonify({"error": str(e)}), 500
