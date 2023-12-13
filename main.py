@@ -29,7 +29,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
 CORS(app)
-socketio = SocketIO(app, cors_allowed_origins=[], logger=True, engineio_logger=True)
+socketio = SocketIO(app, cors_allowed_origins=["http://localhost:8100", "https://app.w2notion.es"], logger=True, engineio_logger=True)
 model = whisper.load_model("base")
 timestamps = [0]
 load_dotenv()
