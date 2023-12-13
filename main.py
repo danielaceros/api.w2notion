@@ -76,7 +76,7 @@ def oauth():
             "userId":js['owner']['user']['id'],
             "phone":ph
         }, document_id=uid)
-        return jsonify({"message": "Datos añadidos correctamente"}), 200
+        return redirect("https://app.w2notion.es")
     except Exception as e:
         print(e)
         return jsonify({"error": str(e)}), 500
