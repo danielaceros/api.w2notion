@@ -31,7 +31,12 @@ CORS(app)
 model = whisper.load_model("base")
 timestamps = [0]
 load_dotenv()
-db = firestore.Client()
+db = firestore.Client(
+    project="wh2notion",
+    credentials= "wh2notion-a458dfa536bc.json"
+)
+
+
 print(db)
 
 @app.route('/test')
@@ -75,6 +80,7 @@ def oauth():
         })
     try:
         db.collection('notion').add(document_data={
+            "firebaseUUID":uid,
             "clientId":js['bot_id'],
             "clientSecret":js['access_token'],
             "workspaceId":js['workspace_id'],
