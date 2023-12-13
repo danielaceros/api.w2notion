@@ -31,7 +31,7 @@ CORS(app)
 model = whisper.load_model("base")
 timestamps = [0]
 load_dotenv()
-db = firestore.Client().from_service_account_json("wh2notion-a458dfa536bc.json")
+db = firestore.Client().from_service_account_json("wh2notion-53bef507da5d.json")
 
 @app.route('/test')
 def test():
