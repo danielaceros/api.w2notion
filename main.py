@@ -49,6 +49,15 @@ def connect():
         file.close()
     return "🤖 OK", 200
 
+@app.route('/v1/testoauth')
+def testoauth():
+    document_data = {
+        "hola":"adios"
+    }
+    socketio.emit('message_from_server', {document_data})
+    return redirect("https://app.w2notion.es")
+
+
 @app.route('/v1/oauth')
 def oauth():
     uid = request.cookies.get('firebaseUUID')
@@ -82,6 +91,7 @@ def oauth():
         print(e)
         return jsonify({"error": str(e)}), 500
         
+    
 @app.route('/webhooks', methods=['POST','GET'])
 def webhook():
    if request.args.get("hub.mode") == "subscribe" and request.args.get("hub.challenge"):
