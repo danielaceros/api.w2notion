@@ -29,7 +29,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
 CORS(app)
-socketio = SocketIO(app)
+socketio = SocketIO(app, cors_allowed_origins='*')
 model = whisper.load_model("base")
 timestamps = [0]
 load_dotenv()
