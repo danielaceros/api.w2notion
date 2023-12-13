@@ -29,7 +29,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
 CORS(app)
-socketio = SocketIO(app, cors_allowed_origins=["http://localhost:8100", "https://app.w2notion.es"], logger=True, engineio_logger=True)
+socketio = SocketIO(app, cors_allowed_origins=["http://localhost:8100", ""], logger=True, engineio_logger=True)
 model = whisper.load_model("base")
 timestamps = [0]
 load_dotenv()
@@ -53,9 +53,8 @@ def testoauth():
     document_data = {
         "hola":"adios"
     }
-    socketio.emit('message_from_server', document_data)
-    return redirect("https://app.w2notion.es")
-
+    socketio.emit('data', document_data)
+    return 200
 
 @app.route('/v1/oauth')
 def oauth():
@@ -84,7 +83,6 @@ def oauth():
             "userId":js['owner']['user']['id'],
             "phone":ph
         }
-        socketio.emit('message_from_server', document_data)
         return redirect("https://app.w2notion.es")
     except Exception as e:
         print(e)
