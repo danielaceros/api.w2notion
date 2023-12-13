@@ -34,7 +34,6 @@ model = whisper.load_model("base")
 timestamps = [0]
 load_dotenv()
 db = firestore.Client().from_service_account_json("wh2notion-62f600ea376d.json")
-print(db.collections())
 
 @app.route('/test')
 def test():
@@ -66,6 +65,21 @@ def oauth():
         "redirect_uri": "https://api.w2notion.es/v1/oauth"
     })
     js = json.loads(res.text)
+    notiondb = Client(auth=js['access_token'])
+    dbs = notiondb.search(**{
+        "filter":{
+            "value": "database",
+            "property": "object"
+        },
+        "short":{
+            "direction":"descending",
+            "timestamp":"last_edited_time"
+        },
+        "page_size": 100
+    })
+    id_list = [database.get('id') for database in dbs['results']]
+    dbanme_list = [database.get('title')[0].get('text').get('content') for database in dbs['results']]
+    dbsdics = {database_name: database_id for database_name, database_id in zip(dbanme_list, id_list)}
     try:
         doc_ref = db.collection('notion').document(uid)
         document = doc_ref.get()
@@ -75,16 +89,19 @@ def oauth():
                 "clientSecret": js['access_token'],
                 "workspaceId": js['workspace_id'],
                 "userId": js['owner']['user']['id'],
-                "phone": ph
+                "phone": ph,
+                "databasesIds": dbsdics,
+                "defaultDatabase": id_list[0]
             })
         else:
             doc_ref.set({
-                "firebaseUUID": uid,
                 "clientId": js['bot_id'],
                 "clientSecret": js['access_token'],
                 "workspaceId": js['workspace_id'],
                 "userId": js['owner']['user']['id'],
-                "phone": ph
+                "phone": ph,
+                "databasesIds": dbsdics,
+                "defaultDatabase": id_list[0]
             })
         return redirect("https://app.w2notion.es")
     except Exception as e:
@@ -93,19 +110,23 @@ def oauth():
         
 @app.route('/webhooks', methods=['POST','GET'])
 def webhook():
-   if request.args.get("hub.mode") == "subscribe" and request.args.get("hub.challenge"):
-       if not request.args.get("hub.verify_token")== "2c430691981da1941c99123c1b72a205":
+    if request.args.get("hub.mode") == "subscribe" and request.args.get("hub.challenge"):
+        if not request.args.get("hub.verify_token")== "2c430691981da1941c99123c1b72a205":
            return "Verification token missmatch", 403
-       return request.args['hub.challenge'], 200
-   d = json.loads(request.data.decode('utf-8'))
-   nb = d['entry'][0]['changes'][0]['value']['messages'][0]['from']
-   doc_ref = db.collection('notion').where(filter=FieldFilter("phone","==",nb)).limit(1)
-   dcs = doc_ref.get()
-   for dc in dcs:
-       clientSecret = dc.get("clientSecret")
-   if clientSecret:
-    notion = Client(auth=clientSecret)
+        return request.args['hub.challenge'], 200
+    d = json.loads(request.data.decode('utf-8'))
+    nb = d['entry'][0]['changes'][0]['value']['messages'][0]['from']
     try:
+        doc_ref = db.collection('notion').where(filter=FieldFilter("phone","==","+"+nb)).limit(1)
+        dcs = doc_ref.get()
+        for dc in dcs:
+            clientSecret = dc.get("clientSecret")
+            defaultDatabase = dc.get("defaultDatabase")
+        if "clientSecret" and "defaultDatabase" in locals():
+            notion = Client(auth=clientSecret)
+            pass
+        else: 
+            raise Exception
         if d['entry'][0]['changes'][0]['value']['messages'][0]['type'] == "text":
             if d['entry'][0]['changes'][0]['value']['messages'][0]['text']['body'] == ".":
                 hs = {
@@ -141,7 +162,7 @@ def webhook():
                             pass
                         n = notion.pages.create(**{
                                     "parent":{
-                                        "database_id":os.getenv("NOTION_DB")
+                                        "database_id":defaultDatabase
                                     },
                                     "properties":{
                                         "Name":{
@@ -163,7 +184,7 @@ def webhook():
                     else:
                         n = notion.pages.create(**{
                             "parent":{
-                                "database_id":os.getenv("NOTION_DB")
+                                "database_id":defaultDatabase
                             },
                             "properties":{
                                 "Name":{
@@ -221,7 +242,7 @@ def webhook():
                         cap = lk.url
                     n = notion.pages.create(**{
                                 "parent":{
-                                    "database_id":os.getenv("NOTION_DB")
+                                    "database_id":defaultDatabase
                                 },
                                 "properties":{
                                     "Name":{
@@ -279,7 +300,7 @@ def webhook():
                         result = model.transcribe(path)
                         n = notion.pages.create(**{
                             "parent":{
-                                "database_id":os.getenv("NOTION_DB")
+                                "database_id":defaultDatabase
                             },
                             "properties":{
                                 "Name":{
@@ -314,7 +335,7 @@ def webhook():
                                 raise Exception
                         n = notion.pages.create(**{
                                 "parent":{
-                                    "database_id":os.getenv("NOTION_DB")
+                                    "database_id":defaultDatabase
                                 },
                                 "properties":{
                                     "Name":{
@@ -379,7 +400,7 @@ def webhook():
                             raise Exception
                     n = notion.pages.create(**{
                                 "parent":{
-                                    "database_id":os.getenv("NOTION_DB")
+                                    "database_id":defaultDatabase
                                 },
                                 "properties":{
                                     "Name":{
@@ -449,7 +470,7 @@ def webhook():
                         cap = lk.url
                     n = notion.pages.create(**{
                                 "parent":{
-                                    "database_id":os.getenv("NOTION_DB")
+                                    "database_id":defaultDatabase
                                 },
                                 "properties":{
                                     "Name":{
@@ -498,7 +519,7 @@ def webhook():
                     }
                     n = notion.pages.create(**{
                                 "parent":{
-                                    "database_id":os.getenv("NOTION_DB")
+                                    "database_id":defaultDatabase
                                 },
                                 "properties":{
                                     "Name":{
@@ -548,7 +569,7 @@ def webhook():
                     }
                 n = notion.pages.create(**{
                                 "parent":{
-                                    "database_id":os.getenv("NOTION_DB")
+                                    "database_id":defaultDatabase
                                 },
                                 "properties":{
                                     "Name":{
@@ -593,7 +614,7 @@ def webhook():
                     }
                 n = notion.pages.create(**{
                                 "parent":{
-                                    "database_id":os.getenv("NOTION_DB")
+                                    "database_id":defaultDatabase
                                 },
                                 "properties":{
                                     "Name":{
@@ -629,7 +650,7 @@ def webhook():
                 timestamps.append(int(d['entry'][0]['changes'][0]['value']['messages'][0]['timestamp']))
             pass
     except KeyError as e:
-        pass
+        pass    
     except Exception:
             hs = {
                 "Authorization": "Bearer EAAEmZB6Ke8OgBOxhARTLHk0mHHdbHstnIDqoEEoDK99SVJIllLSWFHEFYfRefYiVYLt1ZCJhvhVvjOxLTmOz6cHm3ZBeiu9JIQmzQyV29Mb7AoLDqlgnSZCsGK5i8YHuOjGbwDjWJZCBZCIfUhFgmuWwEKBEIqq20Km2tRu13tF6oLLjITo8gA9IANF9ysMejF",
@@ -646,8 +667,6 @@ def webhook():
                 }
             rs = requests.post(f"https://graph.facebook.com/v18.0/157728167427201/messages", headers=hs, data=json.dumps(datas))
     return "🤖 ¡Webhook ran!", 200
-   else:
-    raise Exception 
 
 if __name__ == "__main__":
    app.run(debug=True,host='0.0.0.0',port=5001)
