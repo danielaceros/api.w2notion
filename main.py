@@ -54,7 +54,7 @@ def testoauth():
     document_data = {
         "hola":"adios"
     }
-    socketio.emit('message_from_server', {document_data})
+    socketio.emit('message_from_server', document_data)
     return redirect("https://app.w2notion.es")
 
 
