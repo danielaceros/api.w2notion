@@ -23,11 +23,13 @@ from time import sleep
 import requests as r
 import base64 
 from google.cloud import firestore
+from flask_socketio import SocketIO
 
 logging.basicConfig(level=logging.DEBUG)
 
 app = Flask(__name__)
 CORS(app)
+socketio = SocketIO(app)
 model = whisper.load_model("base")
 timestamps = [0]
 load_dotenv()
@@ -66,27 +68,21 @@ def oauth():
         "redirect_uri": "https://api.w2notion.es/v1/oauth"
     })
     js = json.loads(res.text)
-    print({
-            "clientId":js['bot_id'],
-            "clientSecret":js['access_token'],
-            "workspaceId":js['workspace_id'],
-            "userId":js['owner']['user']['id'],
-            "phone":ph
-        })
     try:
-        db.collection('notion').add(document_data={
+        document_data={
             "firebaseUUID":uid,
             "clientId":js['bot_id'],
             "clientSecret":js['access_token'],
             "workspaceId":js['workspace_id'],
             "userId":js['owner']['user']['id'],
             "phone":ph
-        }, document_id=uid)
+        }
+        socketio.emit('message_from_server', document_data)
         return jsonify({"message": "Datos añadidos correctamente"}), 200
     except Exception as e:
         print(e)
         return jsonify({"error": str(e)}), 500
-    
+        
 @app.route('/webhooks', methods=['POST','GET'])
 def webhook():
    if request.args.get("hub.mode") == "subscribe" and request.args.get("hub.challenge"):
