@@ -68,14 +68,25 @@ def oauth():
     })
     js = json.loads(res.text)
     try:
-        db.collection('notion').add(document_data={
-            "firebaseUUID":uid,
-            "clientId":js['bot_id'],
-            "clientSecret":js['access_token'],
-            "workspaceId":js['workspace_id'],
-            "userId":js['owner']['user']['id'],
-            "phone":ph
-        }, document_id=uid)
+        doc_ref = db.collection('notion').document(uid)
+        document = doc_ref.get()
+        if document.exists:
+            doc_ref.update({
+                "clientId": js['bot_id'],
+                "clientSecret": js['access_token'],
+                "workspaceId": js['workspace_id'],
+                "userId": js['owner']['user']['id'],
+                "phone": ph
+            })
+        else:
+            doc_ref.set({
+                "firebaseUUID": uid,
+                "clientId": js['bot_id'],
+                "clientSecret": js['access_token'],
+                "workspaceId": js['workspace_id'],
+                "userId": js['owner']['user']['id'],
+                "phone": ph
+            })
         return redirect("https://app.w2notion.es")
     except Exception as e:
         print(e)
