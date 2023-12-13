@@ -34,7 +34,7 @@ load_dotenv()
 db = firestore.Client().from_service_account_json("wh2notion-a458dfa536bc.json")
 
 
-print(db)
+print(db.collections())
 
 @app.route('/test')
 def test():
