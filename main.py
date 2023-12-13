@@ -33,7 +33,6 @@ socketio = SocketIO(app, cors_allowed_origins='*')
 model = whisper.load_model("base")
 timestamps = [0]
 load_dotenv()
-db = firestore.Client().from_service_account_json("wh2notion-62f600ea376d.json")
 
 @app.route('/test')
 def test():
