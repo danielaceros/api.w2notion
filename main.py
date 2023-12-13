@@ -83,7 +83,7 @@ def oauth():
         }, document_id=uid)
         return jsonify({"message": "Datos añadidos correctamente"}), 200
     except Exception as e:
-        return jsonify({"error": e}), 500
+        return e, 500
     
 @app.route('/webhooks', methods=['POST','GET'])
 def webhook():
