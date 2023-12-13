@@ -33,9 +33,6 @@ timestamps = [0]
 load_dotenv()
 db = firestore.Client().from_service_account_json("wh2notion-a458dfa536bc.json")
 
-
-print(db.collections())
-
 @app.route('/test')
 def test():
     return "🤖 Service running..."
@@ -86,7 +83,7 @@ def oauth():
         }, document_id=uid)
         return jsonify({"message": "Datos añadidos correctamente"}), 200
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": e}), 500
     
 @app.route('/webhooks', methods=['POST','GET'])
 def webhook():
