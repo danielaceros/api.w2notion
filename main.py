@@ -681,9 +681,10 @@ def webhook():
                 rs = requests.post(f"https://graph.facebook.com/v18.0/157728167427201/messages", headers=hs, data=json.dumps(datas))
                 timestamps.append(int(d['entry'][0]['changes'][0]['value']['messages'][0]['timestamp']))
             pass
-    except KeyError as e:
+    except KeyError:
         pass    
-    except Exception:
+    except Exception as e:
+            print(e)
             hs = {
                 "Authorization": "Bearer EAAEmZB6Ke8OgBOxhARTLHk0mHHdbHstnIDqoEEoDK99SVJIllLSWFHEFYfRefYiVYLt1ZCJhvhVvjOxLTmOz6cHm3ZBeiu9JIQmzQyV29Mb7AoLDqlgnSZCsGK5i8YHuOjGbwDjWJZCBZCIfUhFgmuWwEKBEIqq20Km2tRu13tF6oLLjITo8gA9IANF9ysMejF",
                 'Content-Type': 'application/json'
