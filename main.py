@@ -153,7 +153,7 @@ def webhook():
             title_property = None
             for key, value in dbxs.items():
                 if isinstance(value, dict) and value.get("type") == "title":
-                    title_property = value
+                    title_property = value.get("name")
                     break
             print(title_property)
         else: 
