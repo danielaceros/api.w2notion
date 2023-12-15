@@ -185,12 +185,19 @@ def webhook():
                             caption = msg['content']
                         else:
                             pass
+                        db = notion.databases.retrieve(database_id=defaultDatabase)
+                        title_property = None
+                        for key, value in db.items():
+                            if value.get("type") == "title":
+                                title_property = value
+                                break
+
                         n = notion.pages.create(**{
                                     "parent":{
                                         "database_id":defaultDatabase
                                     },
                                     "properties":{
-                                        "Name":{
+                                        f"{title_property}":{
                                             "type":"title",
                                             "title":[
                                                 {"type": "text", 
@@ -212,7 +219,7 @@ def webhook():
                                 "database_id":defaultDatabase
                             },
                             "properties":{
-                                "Name":{
+                                f"{title_property}":{
                                     "type":"title",
                                     "title":[{"type": "text", "text": {"content": msg['content']}}]
                                 }
@@ -270,7 +277,7 @@ def webhook():
                                     "database_id":defaultDatabase
                                 },
                                 "properties":{
-                                    "Name":{
+                                    f"{title_property}":{
                                         "type":"title",
                                         "title":[
                                             {"type": "text", 
@@ -328,7 +335,7 @@ def webhook():
                                 "database_id":defaultDatabase
                             },
                             "properties":{
-                                "Name":{
+                                f"{title_property}":{
                                     "type":"title",
                                     "title":[{"type": "text", "text": {"content": result['text'].strip()}}]
                                 }
@@ -363,7 +370,7 @@ def webhook():
                                     "database_id":defaultDatabase
                                 },
                                 "properties":{
-                                    "Name":{
+                                    f"{title_property}":{
                                         "type":"title",
                                         "title":[
                                             {"type": "text", 
@@ -428,7 +435,7 @@ def webhook():
                                     "database_id":defaultDatabase
                                 },
                                 "properties":{
-                                    "Name":{
+                                    f"{title_property}":{
                                         "type":"title",
                                         "title":[
                                             {"type": "text", 
@@ -498,7 +505,7 @@ def webhook():
                                     "database_id":defaultDatabase
                                 },
                                 "properties":{
-                                    "Name":{
+                                    f"{title_property}":{
                                         "type":"title",
                                         "title":[
                                             {"type": "text", 
@@ -547,7 +554,7 @@ def webhook():
                                     "database_id":defaultDatabase
                                 },
                                 "properties":{
-                                    "Name":{
+                                    f"{title_property}":{
                                         "type":"title",
                                         "title":[
                                             {"type": "text", 
@@ -597,7 +604,7 @@ def webhook():
                                     "database_id":defaultDatabase
                                 },
                                 "properties":{
-                                    "Name":{
+                                    f"{title_property}":{
                                         "type":"title",
                                         "title":[
                                             {"type": "text", 
@@ -642,7 +649,7 @@ def webhook():
                                     "database_id":defaultDatabase
                                 },
                                 "properties":{
-                                    "Name":{
+                                    f"{title_property}":{
                                         "type":"title",
                                         "title":[
                                             {"type": "text", 
