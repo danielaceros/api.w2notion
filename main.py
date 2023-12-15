@@ -77,9 +77,34 @@ def oauth():
         },
         "page_size": 100
     })
-    id_list = [database.get('id') for database in dbs['results']]
-    dbanme_list = [database.get('title')[0].get('text').get('content') for database in dbs['results']]
-    dbsdics = {database_name: database_id for database_name, database_id in zip(dbanme_list, id_list)}
+    dbsdics = []
+    for dbitem in dbs['results']:
+        if dbitem.get("id"):
+            idb = dbitem.get('id')
+            if dbitem.get("title"):
+                dbname = dbitem.get('title')[0].get('text').get('content')
+            else:
+                dbname = "Untitled"
+            if dbitem.get("url"):
+                url = dbitem.get("url")
+            else:
+                url = ""
+            if dbitem.get("icon"):
+                if dbitem.get("icon").get("type") == "emoji":
+                    icon = dbitem.get("icon").get("emoji")
+                else:
+                    pass
+            else:
+                icon = ""
+            dbdic = {
+            "id": idb,
+            "dbname": icon + " " + dbname,
+            "url": url
+            }
+            dbsdics.append(dbdic)
+        else:
+            pass
+        
     try:
         doc_ref = db.collection('notion').document(uid)
         document = doc_ref.get()
@@ -91,7 +116,7 @@ def oauth():
                 "userId": js['owner']['user']['id'],
                 "phone": ph,
                 "databasesIds": dbsdics,
-                "defaultDatabase": id_list[0]
+                "defaultDatabase": dbsdics[0]['id']
             })
         else:
             doc_ref.set({
@@ -101,7 +126,7 @@ def oauth():
                 "userId": js['owner']['user']['id'],
                 "phone": ph,
                 "databasesIds": dbsdics,
-                "defaultDatabase": id_list[0]
+                "defaultDatabase": dbsdics[0]
             })
         return redirect("https://app.w2notion.es")
     except Exception as e:
