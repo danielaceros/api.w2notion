@@ -151,12 +151,11 @@ def webhook():
             notion = Client(auth=clientSecret)
             dbxs = notion.databases.retrieve(database_id=defaultDatabase)
             title_property = None
-            for key, value in dbxs.items():
-                if value.get("type") == "title":
+            for key, value in json_data.items():
+                if isinstance(value, dict) and value.get("type") == "title":
                     title_property = value
                     break
             print(title_property)
-            pass
         else: 
             raise Exception
         if d['entry'][0]['changes'][0]['value']['messages'][0]['type'] == "text":
