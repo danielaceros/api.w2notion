@@ -185,9 +185,9 @@ def webhook():
                             caption = msg['content']
                         else:
                             pass
-                        db = notion.databases.retrieve(database_id=defaultDatabase)
+                        dbxs = notion.databases.retrieve(database_id=defaultDatabase)
                         title_property = None
-                        for key, value in db.items():
+                        for key, value in dbxs.items():
                             if value.get("type") == "title":
                                 title_property = value
                                 break
