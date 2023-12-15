@@ -34,7 +34,7 @@ model = whisper.load_model("base")
 timestamps = [0]
 load_dotenv()
 db = firestore.Client().from_service_account_json("wh2notion-62f600ea376d.json")
-
+os.environ.get("")
 def find_property_by_type(data, property_type):
     for key, value in data.items():
         if isinstance(value, dict):
@@ -166,7 +166,7 @@ def webhook():
         if d['entry'][0]['changes'][0]['value']['messages'][0]['type'] == "text":
             if d['entry'][0]['changes'][0]['value']['messages'][0]['text']['body'] == ".":
                 hs = {
-                    "Authorization": "Bearer EAAEmZB6Ke8OgBOxhARTLHk0mHHdbHstnIDqoEEoDK99SVJIllLSWFHEFYfRefYiVYLt1ZCJhvhVvjOxLTmOz6cHm3ZBeiu9JIQmzQyV29Mb7AoLDqlgnSZCsGK5i8YHuOjGbwDjWJZCBZCIfUhFgmuWwEKBEIqq20Km2tRu13tF6oLLjITo8gA9IANF9ysMejF",
+                    "Authorization": "Bearer "+os.environ.get("FB_APIKEY"),
                     'Content-Type': 'application/json'
                     }
                 datas = {
@@ -230,7 +230,7 @@ def webhook():
                             }
                         })
                     hs = {
-                    "Authorization": "Bearer EAAEmZB6Ke8OgBOxhARTLHk0mHHdbHstnIDqoEEoDK99SVJIllLSWFHEFYfRefYiVYLt1ZCJhvhVvjOxLTmOz6cHm3ZBeiu9JIQmzQyV29Mb7AoLDqlgnSZCsGK5i8YHuOjGbwDjWJZCBZCIfUhFgmuWwEKBEIqq20Km2tRu13tF6oLLjITo8gA9IANF9ysMejF",
+                    "Authorization": "Bearer "+os.environ.get("FB_APIKEY"),
                     'Content-Type': 'application/json'
                     }
                     datas = {
@@ -260,14 +260,14 @@ def webhook():
                                 "content":d['entry'][0]['changes'][0]['value']['messages'][0]['image']['id']
                             }
                     h = {
-                        'Authorization':'Bearer EAAEmZB6Ke8OgBOxhARTLHk0mHHdbHstnIDqoEEoDK99SVJIllLSWFHEFYfRefYiVYLt1ZCJhvhVvjOxLTmOz6cHm3ZBeiu9JIQmzQyV29Mb7AoLDqlgnSZCsGK5i8YHuOjGbwDjWJZCBZCIfUhFgmuWwEKBEIqq20Km2tRu13tF6oLLjITo8gA9IANF9ysMejF'
+                        'Authorization':'Bearer '+os.environ.get("FB_APIKEY")
                     }
                     r = requests.get('https://graph.facebook.com/v18.0/'+msg['content']+'/', headers=h)
                     d2 = r.json()
                     r2 = requests.get(d2['url'], headers=h)
                     path = "./media/"+msg['content']+'.jpg'
                     open(path, 'wb+').write(r2.content)
-                    dbx = dropbox.Dropbox("sl.Bp2AkXA6nT5yu8y6BWQJDUYe68S-aje88i105EGsZuLjpUjUj0tF-ngYwUhT5ZMmH0rRn0NlP78DNuqA21ejHrOC-cL_dRHPsDLd_DHAtv-0DVF9optV8fzsiiaL40JZdanXT3PZvGRcvpo")
+                    dbx = dropbox.Dropbox(os.environ.get("DROPBOX_APIKEY"))
                     with open(path, 'rb') as f:
                         dbx.files_upload(f.read(), "/"+msg['content']+".jpg", mode=WriteMode('overwrite'))
                         try:
@@ -299,7 +299,7 @@ def webhook():
                             })
                     os.remove(path)
                     hs = {
-                    "Authorization": "Bearer EAAEmZB6Ke8OgBOxhARTLHk0mHHdbHstnIDqoEEoDK99SVJIllLSWFHEFYfRefYiVYLt1ZCJhvhVvjOxLTmOz6cHm3ZBeiu9JIQmzQyV29Mb7AoLDqlgnSZCsGK5i8YHuOjGbwDjWJZCBZCIfUhFgmuWwEKBEIqq20Km2tRu13tF6oLLjITo8gA9IANF9ysMejF",
+                    "Authorization": "Bearer "+os.environ.get("FB_APIKEY"),
                     'Content-Type': 'application/json'
                     }
                     datas = {
@@ -325,7 +325,7 @@ def webhook():
                                 "content":d['entry'][0]['changes'][0]['value']['messages'][0]['audio']['id']
                             }
                     h = {
-                        'Authorization':'Bearer EAAEmZB6Ke8OgBOxhARTLHk0mHHdbHstnIDqoEEoDK99SVJIllLSWFHEFYfRefYiVYLt1ZCJhvhVvjOxLTmOz6cHm3ZBeiu9JIQmzQyV29Mb7AoLDqlgnSZCsGK5i8YHuOjGbwDjWJZCBZCIfUhFgmuWwEKBEIqq20Km2tRu13tF6oLLjITo8gA9IANF9ysMejF'
+                        'Authorization':'Bearer '+os.environ.get("FB_APIKEY")
                     }
                     r = requests.get('https://graph.facebook.com/v18.0/'+msg['content']+'/', headers=h)
                     d2 = r.json()
@@ -347,7 +347,7 @@ def webhook():
                         })
                         os.remove(path)
                         hs = {
-                        "Authorization": "Bearer EAAEmZB6Ke8OgBOxhARTLHk0mHHdbHstnIDqoEEoDK99SVJIllLSWFHEFYfRefYiVYLt1ZCJhvhVvjOxLTmOz6cHm3ZBeiu9JIQmzQyV29Mb7AoLDqlgnSZCsGK5i8YHuOjGbwDjWJZCBZCIfUhFgmuWwEKBEIqq20Km2tRu13tF6oLLjITo8gA9IANF9ysMejF",
+                        "Authorization": "Bearer "+os.environ.get("FB_APIKEY"),
                         'Content-Type': 'application/json'
                         }
                         datas = {
@@ -362,7 +362,7 @@ def webhook():
                         rs = requests.post(f"https://graph.facebook.com/v18.0/157728167427201/messages", headers=hs, data=json.dumps(datas))
                         timestamps.append(int(d['entry'][0]['changes'][0]['value']['messages'][0]['timestamp']))
                     else:
-                        dbx = dropbox.Dropbox("sl.Bp2AkXA6nT5yu8y6BWQJDUYe68S-aje88i105EGsZuLjpUjUj0tF-ngYwUhT5ZMmH0rRn0NlP78DNuqA21ejHrOC-cL_dRHPsDLd_DHAtv-0DVF9optV8fzsiiaL40JZdanXT3PZvGRcvpo")
+                        dbx = dropbox.Dropbox(os.environ.get("DROPBOX_APIKEY"))
                         with open(path, 'rb') as f:
                             dbx.files_upload(f.read(), "/"+msg['content']+".mp3", mode=WriteMode('overwrite'))
                             try:
@@ -392,7 +392,7 @@ def webhook():
                             })
                         os.remove(path)
                         hs = {
-                        "Authorization": "Bearer EAAEmZB6Ke8OgBOxhARTLHk0mHHdbHstnIDqoEEoDK99SVJIllLSWFHEFYfRefYiVYLt1ZCJhvhVvjOxLTmOz6cHm3ZBeiu9JIQmzQyV29Mb7AoLDqlgnSZCsGK5i8YHuOjGbwDjWJZCBZCIfUhFgmuWwEKBEIqq20Km2tRu13tF6oLLjITo8gA9IANF9ysMejF",
+                        "Authorization": "Bearer "+os.environ.get("FB_APIKEY"),
                         'Content-Type': 'application/json'
                         }
                         datas = {
@@ -420,14 +420,14 @@ def webhook():
                                 "filename":d['entry'][0]['changes'][0]['value']['messages'][0]['document']['filename'].replace(" ","")
                             }
                     h = {
-                        'Authorization':'Bearer EAAEmZB6Ke8OgBOxhARTLHk0mHHdbHstnIDqoEEoDK99SVJIllLSWFHEFYfRefYiVYLt1ZCJhvhVvjOxLTmOz6cHm3ZBeiu9JIQmzQyV29Mb7AoLDqlgnSZCsGK5i8YHuOjGbwDjWJZCBZCIfUhFgmuWwEKBEIqq20Km2tRu13tF6oLLjITo8gA9IANF9ysMejF'
+                        'Authorization':'Bearer '+os.environ.get("FB_APIKEY")
                     }
                     r = requests.get('https://graph.facebook.com/v18.0/'+msg['content']+'/', headers=h)
                     d2 = r.json()
                     r2 = requests.get(d2['url'], headers=h)
                     path = "./media/"+msg['content']+os.path.splitext(msg['filename'])[1]
                     open(path, 'wb+').write(r2.content)
-                    dbx = dropbox.Dropbox("sl.Bp2AkXA6nT5yu8y6BWQJDUYe68S-aje88i105EGsZuLjpUjUj0tF-ngYwUhT5ZMmH0rRn0NlP78DNuqA21ejHrOC-cL_dRHPsDLd_DHAtv-0DVF9optV8fzsiiaL40JZdanXT3PZvGRcvpo")
+                    dbx = dropbox.Dropbox(os.environ.get("DROPBOX_APIKEY"))
                     with open(path, 'rb') as f:
                         dbx.files_upload(f.read(), "/"+msg['content']+os.path.splitext(msg['filename'])[1], mode=WriteMode('overwrite'))
                         try:
@@ -457,7 +457,7 @@ def webhook():
                             })
                     os.remove(path)
                     hs = {
-                    "Authorization": "Bearer EAAEmZB6Ke8OgBOxhARTLHk0mHHdbHstnIDqoEEoDK99SVJIllLSWFHEFYfRefYiVYLt1ZCJhvhVvjOxLTmOz6cHm3ZBeiu9JIQmzQyV29Mb7AoLDqlgnSZCsGK5i8YHuOjGbwDjWJZCBZCIfUhFgmuWwEKBEIqq20Km2tRu13tF6oLLjITo8gA9IANF9ysMejF",
+                    "Authorization": "Bearer "+os.environ.get("FB_APIKEY"),
                     'Content-Type': 'application/json'
                     }
                     datas = {
@@ -488,14 +488,14 @@ def webhook():
                                 "mime":d['entry'][0]['changes'][0]['value']['messages'][0]['video']['mime_type']
                             }
                     h = {
-                        'Authorization':'Bearer EAAEmZB6Ke8OgBOxhARTLHk0mHHdbHstnIDqoEEoDK99SVJIllLSWFHEFYfRefYiVYLt1ZCJhvhVvjOxLTmOz6cHm3ZBeiu9JIQmzQyV29Mb7AoLDqlgnSZCsGK5i8YHuOjGbwDjWJZCBZCIfUhFgmuWwEKBEIqq20Km2tRu13tF6oLLjITo8gA9IANF9ysMejF'
+                        'Authorization':'Bearer '+os.environ.get("FB_APIKEY")
                     }
                     r = requests.get('https://graph.facebook.com/v18.0/'+msg['content']+'/', headers=h)
                     d2 = r.json()
                     r2 = requests.get(d2['url'], headers=h)
                     path = "./media/"+msg['content']+".mp4"
                     open(path, 'wb+').write(r2.content)
-                    dbx = dropbox.Dropbox("sl.Bp2AkXA6nT5yu8y6BWQJDUYe68S-aje88i105EGsZuLjpUjUj0tF-ngYwUhT5ZMmH0rRn0NlP78DNuqA21ejHrOC-cL_dRHPsDLd_DHAtv-0DVF9optV8fzsiiaL40JZdanXT3PZvGRcvpo")
+                    dbx = dropbox.Dropbox(os.environ.get("DROPBOX_APIKEY"))
                     with open(path, 'rb') as f:
                         dbx.files_upload(f.read(), "/"+msg['content']+".mp4", mode=WriteMode('overwrite'))
                         try:
@@ -527,7 +527,7 @@ def webhook():
                             })
                     os.remove(path)
                     hs = {
-                    "Authorization": "Bearer EAAEmZB6Ke8OgBOxhARTLHk0mHHdbHstnIDqoEEoDK99SVJIllLSWFHEFYfRefYiVYLt1ZCJhvhVvjOxLTmOz6cHm3ZBeiu9JIQmzQyV29Mb7AoLDqlgnSZCsGK5i8YHuOjGbwDjWJZCBZCIfUhFgmuWwEKBEIqq20Km2tRu13tF6oLLjITo8gA9IANF9ysMejF",
+                    "Authorization": "Bearer "+os.environ.get("FB_APIKEY"),
                     'Content-Type': 'application/json'
                     }
                     datas = {
@@ -575,7 +575,7 @@ def webhook():
                                 }
                             })
                     hs = {
-                    "Authorization": "Bearer EAAEmZB6Ke8OgBOxhARTLHk0mHHdbHstnIDqoEEoDK99SVJIllLSWFHEFYfRefYiVYLt1ZCJhvhVvjOxLTmOz6cHm3ZBeiu9JIQmzQyV29Mb7AoLDqlgnSZCsGK5i8YHuOjGbwDjWJZCBZCIfUhFgmuWwEKBEIqq20Km2tRu13tF6oLLjITo8gA9IANF9ysMejF",
+                    "Authorization": "Bearer "+os.environ.get("FB_APIKEY"),
                     'Content-Type': 'application/json'
                     }
                     datas = {
@@ -625,7 +625,7 @@ def webhook():
                                 }
                             })
                 hs = {
-                    "Authorization": "Bearer EAAEmZB6Ke8OgBOxhARTLHk0mHHdbHstnIDqoEEoDK99SVJIllLSWFHEFYfRefYiVYLt1ZCJhvhVvjOxLTmOz6cHm3ZBeiu9JIQmzQyV29Mb7AoLDqlgnSZCsGK5i8YHuOjGbwDjWJZCBZCIfUhFgmuWwEKBEIqq20Km2tRu13tF6oLLjITo8gA9IANF9ysMejF",
+                    "Authorization": "Bearer "+os.environ.get("FB_APIKEY"),
                     'Content-Type': 'application/json'
                     }
                 datas = {
@@ -670,7 +670,7 @@ def webhook():
                                 }
                             })
                 hs = {
-                    "Authorization": "Bearer EAAEmZB6Ke8OgBOxhARTLHk0mHHdbHstnIDqoEEoDK99SVJIllLSWFHEFYfRefYiVYLt1ZCJhvhVvjOxLTmOz6cHm3ZBeiu9JIQmzQyV29Mb7AoLDqlgnSZCsGK5i8YHuOjGbwDjWJZCBZCIfUhFgmuWwEKBEIqq20Km2tRu13tF6oLLjITo8gA9IANF9ysMejF",
+                    "Authorization": "Bearer "+os.environ.get("FB_APIKEY"),
                     'Content-Type': 'application/json'
                     }
                 datas = {
@@ -690,7 +690,7 @@ def webhook():
     except Exception as e:
             print(e)
             hs = {
-                "Authorization": "Bearer EAAEmZB6Ke8OgBOxhARTLHk0mHHdbHstnIDqoEEoDK99SVJIllLSWFHEFYfRefYiVYLt1ZCJhvhVvjOxLTmOz6cHm3ZBeiu9JIQmzQyV29Mb7AoLDqlgnSZCsGK5i8YHuOjGbwDjWJZCBZCIfUhFgmuWwEKBEIqq20Km2tRu13tF6oLLjITo8gA9IANF9ysMejF",
+                "Authorization": "Bearer "+os.environ.get("FB_APIKEY"),
                 'Content-Type': 'application/json'
                 }
             datas = {
