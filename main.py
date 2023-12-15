@@ -147,6 +147,8 @@ def webhook():
         for dc in dcs:
             clientSecret = dc.get("clientSecret")
             defaultDatabase = dc.get("defaultDatabase")
+        if "clientSecret" and "defaultDatabase" in locals():
+            notion = Client(auth=clientSecret)
             dbxs = notion.databases.retrieve(database_id=defaultDatabase)
             title_property = None
             for key, value in dbxs.items():
@@ -154,8 +156,6 @@ def webhook():
                     title_property = value
                     break
             print(title_property)
-        if "clientSecret" and "defaultDatabase" in locals():
-            notion = Client(auth=clientSecret)
             pass
         else: 
             raise Exception
