@@ -35,6 +35,16 @@ timestamps = [0]
 load_dotenv()
 db = firestore.Client().from_service_account_json("wh2notion-62f600ea376d.json")
 
+def find_property_by_type(data, property_type):
+    for key, value in data.items():
+        if isinstance(value, dict):
+            result = find_property_by_type(value, property_type)
+            if result is not None:
+                return result
+        elif key == "type" and value == property_type:
+            return data
+    return None
+
 @app.route('/test')
 def test():
     return "🤖 Service running..."
@@ -150,12 +160,7 @@ def webhook():
         if "clientSecret" and "defaultDatabase" in locals():
             notion = Client(auth=clientSecret)
             dbxs = notion.databases.retrieve(database_id=defaultDatabase)
-            title_property = None
-            for key, value in dbxs.items():
-                if isinstance(value, dict) and value.get("type") == "title":
-                    title_property = value.get("name")
-                    break
-            print(title_property)
+            title_property = find_property_by_type(dbxs, "title")['name']
         else: 
             raise Exception
         if d['entry'][0]['changes'][0]['value']['messages'][0]['type'] == "text":
