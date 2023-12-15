@@ -147,6 +147,13 @@ def webhook():
         for dc in dcs:
             clientSecret = dc.get("clientSecret")
             defaultDatabase = dc.get("defaultDatabase")
+            dbxs = notion.databases.retrieve(database_id=defaultDatabase)
+            title_property = None
+            for key, value in dbxs.items():
+                if value.get("type") == "title":
+                    title_property = value
+                    break
+            print(title_property)
         if "clientSecret" and "defaultDatabase" in locals():
             notion = Client(auth=clientSecret)
             pass
@@ -185,13 +192,6 @@ def webhook():
                             caption = msg['content']
                         else:
                             pass
-                        dbxs = notion.databases.retrieve(database_id=defaultDatabase)
-                        title_property = None
-                        for key, value in dbxs.items():
-                            if value.get("type") == "title":
-                                title_property = value
-                                break
-
                         n = notion.pages.create(**{
                                     "parent":{
                                         "database_id":defaultDatabase
