@@ -25,6 +25,13 @@ import base64
 from google.cloud import firestore
 from google.cloud.firestore_v1.base_query import FieldFilter
 from flask_socketio import SocketIO
+import os.path
+from google.auth.transport.requests import Request
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from googleapiclient.discovery import build
+from googleapiclient.errors import HttpError
+from googleapiclient.http import MediaFileUpload
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -35,6 +42,33 @@ timestamps = [0]
 load_dotenv()
 db = firestore.Client().from_service_account_json("wh2notion-62f600ea376d.json")
 os.environ.get("")
+
+SCOPES = ["https://www.googleapis.com/auth/drive"]
+
+def googledrive(path):
+  creds = None
+  if os.path.exists("token.json"):
+    creds = Credentials.from_authorized_user_file("token.json", SCOPES)
+  if not creds or not creds.valid:
+    if creds and creds.expired and creds.refresh_token:
+      creds.refresh(Request())
+  try:
+    service = build("drive", "v3", credentials=creds)
+    file_metadata = {"name": path}
+    media = MediaFileUpload(path)
+    file = service.files().create(
+            body=file_metadata,
+            media_body=media,
+            fields="id"
+        ).execute()
+    service.permissions().create(
+            fileId=file['id'],
+            body={'role': 'reader', 'type': 'anyone'}
+        ).execute()
+    return f"https://drive.google.com/file/d/{file['id']}/preview"
+  except HttpError as error:
+    pass
+  
 def find_property_by_type(data, property_type):
     for key, value in data.items():
         if isinstance(value, dict):
@@ -268,15 +302,9 @@ def webhook():
                     r2 = requests.get(d2['url'], headers=h)
                     path = "./media/"+msg['content']+'.jpg'
                     open(path, 'wb+').write(r2.content)
-                    
-                    with open(path, 'rb') as f:
-                        dbx.files_upload(f.read(), "/"+msg['content']+".jpg", mode=WriteMode('overwrite'))
-                        try:
-                            lk = dbx.sharing_create_shared_link("/"+msg['content']+".jpg")
-                        except:
-                            raise Exception
+                    lk = googledrive(path)
                     if cap == None:
-                        cap = lk.url
+                        cap = lk
                     n = notion.pages.create(**{
                                 "parent":{
                                     "database_id":defaultDatabase
@@ -289,7 +317,7 @@ def webhook():
                                             "text": {
                                                 "content": cap,
                                                 "link":{
-                                                    "url":lk.url
+                                                    "url":lk
                                                 }
                                                 }
                                             }
@@ -363,13 +391,7 @@ def webhook():
                         rs = requests.post(f"https://graph.facebook.com/v18.0/157728167427201/messages", headers=hs, data=json.dumps(datas))
                         timestamps.append(int(d['entry'][0]['changes'][0]['value']['messages'][0]['timestamp']))
                     else:
-                        
-                        with open(path, 'rb') as f:
-                            dbx.files_upload(f.read(), "/"+msg['content']+".mp3", mode=WriteMode('overwrite'))
-                            try:
-                                lk = dbx.sharing_create_shared_link("/"+msg['content']+".mp3")
-                            except:
-                                raise Exception
+                        lk = googledrive(path)
                         n = notion.pages.create(**{
                                 "parent":{
                                     "database_id":defaultDatabase
@@ -380,9 +402,9 @@ def webhook():
                                         "title":[
                                             {"type": "text", 
                                             "text": {
-                                                "content": lk.url,
+                                                "content": lk,
                                                 "link":{
-                                                    "url":lk.url
+                                                    "url":lk
                                                 }
                                                 }
                                             }
@@ -428,13 +450,7 @@ def webhook():
                     r2 = requests.get(d2['url'], headers=h)
                     path = "./media/"+msg['content']+os.path.splitext(msg['filename'])[1]
                     open(path, 'wb+').write(r2.content)
-                    
-                    with open(path, 'rb') as f:
-                        dbx.files_upload(f.read(), "/"+msg['content']+os.path.splitext(msg['filename'])[1], mode=WriteMode('overwrite'))
-                        try:
-                            lk = dbx.sharing_create_shared_link("/"+msg['content']+os.path.splitext(msg['filename'])[1])
-                        except:
-                            raise Exception
+                    lk = googledrive(path)
                     n = notion.pages.create(**{
                                 "parent":{
                                     "database_id":defaultDatabase
@@ -447,7 +463,7 @@ def webhook():
                                             "text": {
                                                 "content": msg['filename'],
                                                 "link":{
-                                                    "url":lk.url
+                                                    "url":lk
                                                 }
                                                 }
                                             }
@@ -496,15 +512,9 @@ def webhook():
                     r2 = requests.get(d2['url'], headers=h)
                     path = "./media/"+msg['content']+".mp4"
                     open(path, 'wb+').write(r2.content)
-                    
-                    with open(path, 'rb') as f:
-                        dbx.files_upload(f.read(), "/"+msg['content']+".mp4", mode=WriteMode('overwrite'))
-                        try:
-                            lk = dbx.sharing_create_shared_link("/"+msg['content']+".mp4")
-                        except:
-                            raise Exception
+                    lk = googledrive(path)
                     if cap == None:
-                        cap = lk.url
+                        cap = lk
                     n = notion.pages.create(**{
                                 "parent":{
                                     "database_id":defaultDatabase
@@ -517,7 +527,7 @@ def webhook():
                                             "text": {
                                                 "content": cap,
                                                 "link":{
-                                                    "url":lk.url
+                                                    "url":lk
                                                 }
                                                 }
                                             }
