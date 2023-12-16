@@ -159,6 +159,7 @@ def webhook():
             defaultDatabase = dc.get("defaultDatabase")
         if "clientSecret" and "defaultDatabase" in locals():
             notion = Client(auth=clientSecret)
+            dbx = dropbox.Dropbox(app_key=os.environ.get("DROPBOX_APPKEY"), app_secret=os.environ.get("DROPBOX_APPSECRET"), oauth2_access_token=os.environ.get("DROPBOX_APIKEY"))
             dbxs = notion.databases.retrieve(database_id=defaultDatabase)
             title_property = find_property_by_type(dbxs, "title")['name']
         else: 
@@ -267,7 +268,7 @@ def webhook():
                     r2 = requests.get(d2['url'], headers=h)
                     path = "./media/"+msg['content']+'.jpg'
                     open(path, 'wb+').write(r2.content)
-                    dbx = dropbox.Dropbox(os.environ.get("DROPBOX_APIKEY"))
+                    
                     with open(path, 'rb') as f:
                         dbx.files_upload(f.read(), "/"+msg['content']+".jpg", mode=WriteMode('overwrite'))
                         try:
@@ -362,7 +363,7 @@ def webhook():
                         rs = requests.post(f"https://graph.facebook.com/v18.0/157728167427201/messages", headers=hs, data=json.dumps(datas))
                         timestamps.append(int(d['entry'][0]['changes'][0]['value']['messages'][0]['timestamp']))
                     else:
-                        dbx = dropbox.Dropbox(os.environ.get("DROPBOX_APIKEY"))
+                        
                         with open(path, 'rb') as f:
                             dbx.files_upload(f.read(), "/"+msg['content']+".mp3", mode=WriteMode('overwrite'))
                             try:
@@ -427,7 +428,7 @@ def webhook():
                     r2 = requests.get(d2['url'], headers=h)
                     path = "./media/"+msg['content']+os.path.splitext(msg['filename'])[1]
                     open(path, 'wb+').write(r2.content)
-                    dbx = dropbox.Dropbox(os.environ.get("DROPBOX_APIKEY"))
+                    
                     with open(path, 'rb') as f:
                         dbx.files_upload(f.read(), "/"+msg['content']+os.path.splitext(msg['filename'])[1], mode=WriteMode('overwrite'))
                         try:
@@ -495,7 +496,7 @@ def webhook():
                     r2 = requests.get(d2['url'], headers=h)
                     path = "./media/"+msg['content']+".mp4"
                     open(path, 'wb+').write(r2.content)
-                    dbx = dropbox.Dropbox(os.environ.get("DROPBOX_APIKEY"))
+                    
                     with open(path, 'rb') as f:
                         dbx.files_upload(f.read(), "/"+msg['content']+".mp4", mode=WriteMode('overwrite'))
                         try:
