@@ -23,7 +23,7 @@ from time import sleep
 import requests as r
 import base64 
 from google.cloud import firestore
-from google.cloud.firestore_v1.base_query import FieldFilter
+from google.cloud.firestore_v1.base_query import FieldFilter, Or
 from flask_socketio import SocketIO
 import os.path
 from google.auth.transport.requests import Request
@@ -229,11 +229,12 @@ def webhook():
                             return jsonify({'error': 'Uncatched error'}), 400
                         else:
                             user_uid = pay_doc[0].id
-                            subscriptions_ref = db.collection('customers').document(user_uid).collection('subscriptions').where(filter=FieldFilter("status","==","active")).limit(1)
-                            subscriptions_docs = subscriptions_ref
-                            print(subscriptions_docs)
-                            doc = subscriptions_docs[0].get("status")
-                            if doc == "trialing" or doc == "active":
+                            subscriptions_ref = db.collection('customers').document(user_uid).collection('subscriptions')
+                            filteractive = FieldFilter("status","==","active")
+                            filtertrialing = FieldFilter("status","==","trialing")
+                            subscriptions_docs = subscriptions_ref.where(filter=Or(filters=[filteractive, filtertrialing])).limit(1)
+                            doc = subscriptions_docs.get()
+                            if doc:
                                 try:
                                     doc_ref = db.collection('notion').where(filter=FieldFilter("phone","==","+"+nb)).limit(1)
                                     dcs = doc_ref.get()
