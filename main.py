@@ -229,8 +229,9 @@ def webhook():
                             return jsonify({'error': 'Uncatched error'}), 400
                         else:
                             user_uid = pay_doc[0].id
-                            subscriptions_ref = db.collection('customers').document(user_uid).collection('subscriptions')
-                            subscriptions_docs = subscriptions_ref.get()
+                            subscriptions_ref = db.collection('customers').document(user_uid).collection('subscriptions').where(filter=FieldFilter("status","==","active")).limit(1)
+                            subscriptions_docs = subscriptions_ref
+                            print(subscriptions_docs)
                             doc = subscriptions_docs[0].get("status")
                             if doc == "trialing" or doc == "active":
                                 try:
