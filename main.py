@@ -32,6 +32,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from googleapiclient.http import MediaFileUpload
+import time
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -109,6 +110,7 @@ def oauth():
         "redirect_uri": "https://api.w2notion.es/v1/oauth"
     })
     js = json.loads(res.text)
+    print(js)
     notiondb = Client(auth=js['access_token'])
     dbs = notiondb.search(**{
         "filter":{
@@ -162,7 +164,12 @@ def oauth():
                 "databasesIds": dbsdics,
                 "defaultDatabase": {"dbname": dbsdics[0]['dbname'],
                                     "id": dbsdics[0]['id'],
-                                    "url": dbsdics[0]['url']}
+                                    "url": dbsdics[0]['url']},
+                "messages": [{
+                    "task":"W2Notion connected",
+                    "timestamp": time.time(),
+                    "url":js['workspace_icon']
+                }]
             })
         else:
             doc_ref.set({
@@ -174,7 +181,12 @@ def oauth():
                 "databasesIds": dbsdics,
                 "defaultDatabase": {"dbname": dbsdics[0]['dbname'],
                                     "id": dbsdics[0]['id'],
-                                    "url": dbsdics[0]['url']}
+                                    "url": dbsdics[0]['url']},
+                "messages": [{
+                    "task":"W2Notion connected",
+                    "timestamp": time.time(),
+                    "url":js['workspace_icon']
+                }]
             })
         return redirect("https://app.w2notion.es")
     except Exception as e:
@@ -243,6 +255,7 @@ def webhook():
                                         nameDatabase = dc.get("defaultDatabase")['dbname']
                                         urlDatabase = dc.get("defaultDatabase")['url']
                                         defaultDatabase = dc.get("defaultDatabase")['id']
+                                        uid = dc.id
                                     if "clientSecret" and "defaultDatabase" in locals():
                                         notion = Client(auth=clientSecret)
                                         dbxs = notion.databases.retrieve(database_id=defaultDatabase)
@@ -266,6 +279,15 @@ def webhook():
                                                     }
                                                 }
                                                 rs = requests.post(f"https://graph.facebook.com/v18.0/157728167427201/messages", headers=hs, data=json.dumps(datas))
+                                                readmsgs = db.collection('notion').document(uid).get().get("messages")
+                                                readmsgs.append({
+                                                    "task":"W2Notion status",
+                                                    "timestamp":time.time(),
+                                                    "url":""
+                                                })
+                                                db.collection('notion').document(uid).update({
+                                                    "messages":readmsgs
+                                                })
                                                 timestamps.append(int(d['entry'][0]['changes'][0]['value']['messages'][0]['timestamp']))
                                         elif d['entry'][0]['changes'][0]['value']['messages'][0]['text']['body'] != ".":
                                             if int(d['entry'][0]['changes'][0]['value']['messages'][0]['timestamp']) > timestamps[-1]:
@@ -331,6 +353,15 @@ def webhook():
                                                     }
                                                 }
                                                 rs = requests.post(f"https://graph.facebook.com/v18.0/157728167427201/messages", headers=hs, data=json.dumps(datas))
+                                                readmsgs = db.collection('notion').document(uid).get().get("messages")
+                                                readmsgs.append({
+                                                    "task":msg['content'],
+                                                    "timestamp":time.time(),
+                                                    "url":n['url']
+                                                })
+                                                db.collection('notion').document(uid).update({
+                                                    "messages":readmsgs
+                                                })
                                                 timestamps.append(int(d['entry'][0]['changes'][0]['value']['messages'][0]['timestamp']))
                                             else:
                                                 pass
@@ -394,6 +425,15 @@ def webhook():
                                                     }
                                                 }
                                                 rs = requests.post(f"https://graph.facebook.com/v18.0/157728167427201/messages", headers=hs, data=json.dumps(datas))
+                                                readmsgs = db.collection('notion').document(uid).get().get("messages")
+                                                readmsgs.append({
+                                                    "task":cap,
+                                                    "timestamp":time.time(),
+                                                    "url":n['url']
+                                                })
+                                                db.collection('notion').document(uid).update({
+                                                    "messages":readmsgs
+                                                })
                                                 timestamps.append(int(d['entry'][0]['changes'][0]['value']['messages'][0]['timestamp']))
                                         else:
                                             pass
@@ -442,6 +482,15 @@ def webhook():
                                                         }
                                                     }
                                                     rs = requests.post(f"https://graph.facebook.com/v18.0/157728167427201/messages", headers=hs, data=json.dumps(datas))
+                                                    readmsgs = db.collection('notion').document(uid).get().get("messages")
+                                                    readmsgs.append({
+                                                        "task":result['text'].strip(),
+                                                        "timestamp":time.time(),
+                                                        "url":n['url']
+                                                    })
+                                                    db.collection('notion').document(uid).update({
+                                                        "messages":readmsgs
+                                                    })
                                                     timestamps.append(int(d['entry'][0]['changes'][0]['value']['messages'][0]['timestamp']))
                                                 else:
                                                     lk = googledrive(path)
@@ -481,6 +530,15 @@ def webhook():
                                                         }
                                                     }
                                                     rs = requests.post(f"https://graph.facebook.com/v18.0/157728167427201/messages", headers=hs, data=json.dumps(datas))
+                                                    readmsgs = db.collection('notion').document(uid).get().get("messages")
+                                                    readmsgs.append({
+                                                        "task":lk,
+                                                        "timestamp":time.time(),
+                                                        "url":n['url']
+                                                    })
+                                                    db.collection('notion').document(uid).update({
+                                                        "messages":readmsgs
+                                                    })
                                                     timestamps.append(int(d['entry'][0]['changes'][0]['value']['messages'][0]['timestamp']))
                                         else:
                                             pass
@@ -540,6 +598,15 @@ def webhook():
                                                     }
                                                 }
                                                 rs = requests.post(f"https://graph.facebook.com/v18.0/157728167427201/messages", headers=hs, data=json.dumps(datas))
+                                                readmsgs = db.collection('notion').document(uid).get().get("messages")
+                                                readmsgs.append({
+                                                        "task":msg['filename'],
+                                                        "timestamp":time.time(),
+                                                        "url":n['url']
+                                                    })
+                                                db.collection('notion').document(uid).update({
+                                                        "messages":readmsgs
+                                                    })
                                                 timestamps.append(int(d['entry'][0]['changes'][0]['value']['messages'][0]['timestamp']))
                                         else:
                                             pass
@@ -604,6 +671,15 @@ def webhook():
                                                     }
                                                 }
                                                 rs = requests.post(f"https://graph.facebook.com/v18.0/157728167427201/messages", headers=hs, data=json.dumps(datas))
+                                                readmsgs = db.collection('notion').document(uid).get().get("messages")
+                                                readmsgs.append({
+                                                        "task":cap,
+                                                        "timestamp":time.time(),
+                                                        "url":n['url']
+                                                    })
+                                                db.collection('notion').document(uid).update({
+                                                        "messages":readmsgs
+                                                    })
                                                 timestamps.append(int(d['entry'][0]['changes'][0]['value']['messages'][0]['timestamp']))
                                         else:
                                             pass
@@ -652,6 +728,15 @@ def webhook():
                                                     }
                                                 }
                                                 rs = requests.post(f"https://graph.facebook.com/v18.0/157728167427201/messages", headers=hs, data=json.dumps(datas))
+                                                readmsgs = db.collection('notion').document(uid).get().get("messages")
+                                                readmsgs.append({
+                                                        "task":msg['contact']+" - "+msg['number'],
+                                                        "timestamp":time.time(),
+                                                        "url":n['url']
+                                                    })
+                                                db.collection('notion').document(uid).update({
+                                                        "messages":readmsgs
+                                                    })
                                                 timestamps.append(int(d['entry'][0]['changes'][0]['value']['messages'][0]['timestamp']))
                                         else:
                                             pass
@@ -702,6 +787,15 @@ def webhook():
                                                     }
                                                 }
                                             rs = requests.post(f"https://graph.facebook.com/v18.0/157728167427201/messages", headers=hs, data=json.dumps(datas))
+                                            readmsgs = db.collection('notion').document(uid).get().get("messages")
+                                            readmsgs.append({
+                                                        "task":msg['name']+" - "+msg['address'],
+                                                        "timestamp":time.time(),
+                                                        "url":n['url']
+                                                    })
+                                            db.collection('notion').document(uid).update({
+                                                        "messages":readmsgs
+                                                    })
                                             timestamps.append(int(d['entry'][0]['changes'][0]['value']['messages'][0]['timestamp']))
                                         elif 'name' not in d['entry'][0]['changes'][0]['value']['messages'][0]['location']:
                                             msg = {
@@ -747,6 +841,15 @@ def webhook():
                                                     }
                                                 }
                                             rs = requests.post(f"https://graph.facebook.com/v18.0/157728167427201/messages", headers=hs, data=json.dumps(datas))
+                                            readmsgs = db.collection('notion').document(uid).get().get("messages")
+                                            readmsgs.append({
+                                                        "task":msg['la']+" - "+msg['lo'],
+                                                        "timestamp":time.time(),
+                                                        "url":n['url']
+                                                    })
+                                            db.collection('notion').document(uid).update({
+                                                        "messages":readmsgs
+                                                    })
                                             timestamps.append(int(d['entry'][0]['changes'][0]['value']['messages'][0]['timestamp']))
                                         pass
                                 except KeyError:
@@ -766,6 +869,15 @@ def webhook():
                                                 }
                                             }
                                         rs = requests.post(f"https://graph.facebook.com/v18.0/157728167427201/messages", headers=hs, data=json.dumps(datas))
+                                        readmsgs = db.collection('notion').document(uid).get().get("messages")
+                                        readmsgs.append({
+                                                        "task":"Error while creating task...!",
+                                                        "timestamp":time.time(),
+                                                        "url":""
+                                                    })
+                                        db.collection('notion').document(uid).update({
+                                                        "messages":readmsgs
+                                                    })
                                         timestamps.append(int(d['entry'][0]['changes'][0]['value']['messages'][0]['timestamp']))
                                         return jsonify({'error': 'Uncatched error'}), 400
                                 return "🤖 ¡Webhook ran!", 200
@@ -784,6 +896,15 @@ def webhook():
                                 }
                                 }
                             rs = requests.post(f"https://graph.facebook.com/v18.0/157728167427201/messages", headers=hs, data=json.dumps(datas))
+                            readmsgs = db.collection('notion').document(uid).get().get("messages")
+                            readmsgs.append({
+                                "task":f"User +{nb}, not on active suscription...",
+                                "timestamp":time.time(),
+                                "url":""
+                            })
+                            db.collection('notion').document(uid).update({
+                                "messages":readmsgs
+                            })
                             timestamps.append(int(d['entry'][0]['changes'][0]['value']['messages'][0]['timestamp']))
                             return jsonify({'error': 'Uncatched error'}), 400       
                 else:
